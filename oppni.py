@@ -105,7 +105,7 @@ def run_oppni():
 
     validate_user_env()
 
-    task_group = 'rhymejudgment'
+    task_group = 'linebisection'
 
     # status_check_dir = os.path.join(args.output_dir, 'status_checks')
     # if not os.path.exists(status_check_dir):
