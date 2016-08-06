@@ -46,9 +46,9 @@ RUN mkdir /projects
 RUN mkdir /scratch
 RUN mkdir /local-scratch
 
-COPY compiled/run_oppni.sh /oppni/
-COPY compiled/oppni /oppni/
-COPY bids/oppni.py /oppni/
+COPY run_oppni.sh /oppni/
+COPY oppni /oppni/
+COPY oppni.py /oppni/
 ENV OPPNI /oppni
 ENV PATH $OPPNI:$PATH
 
