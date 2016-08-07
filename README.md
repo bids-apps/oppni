@@ -1,4 +1,4 @@
-[![CircleCI build status](https://circleci.com/gh/:owner/:repo.png?circle-token=:circle-token)]
+[![CircleCI](https://circleci.com/gh/BIDS-Apps/oppni.svg?style=svg)](https://circleci.com/gh/BIDS-Apps/oppni)
 
 #OPPNI (Optimization of Preprocessing Pipelines for NeuroImaging) for fMRI analysis
 
