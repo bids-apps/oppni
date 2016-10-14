@@ -154,6 +154,24 @@ def run_part_one(bids_dir, subject_label, task_name, output_dir, analysis_level)
         raise
 
 
+def run_part_two(bids_dir, task_name, output_dir, analysis_level):
+    """
+    """
+
+    cmd = "run_oppni.sh %s %s %s %s %s %s %s %s" % (mcr_path, bids_dir, output_dir, analysis_level,
+                                                    "--run_name", task_name,
+                                                    "--task_design", "event")
+    print(cmd)
+    try:
+        # txt_out = subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
+        #print txt_out
+        run_cmd(cmd)
+    except:
+        exc = sys.exc_info()
+        print("Unexpected error: {}".format(exc[0]))
+        raise
+
+
 def run_oppni():
     """Main function handling different levels of the OPPNI processing and analysis."""
 
@@ -193,7 +211,10 @@ def run_oppni():
     elif args.analysis_level in ["group", "group1"]:
 
         # for all subjects
-        raise NotImplemented
+        run_part_two(args.bids_dir, task_group, args.output_dir, args.analysis_level )
+
+    else:
+        raise ValueError('analysis level must be participant[1] or group[1].')
 
 
 if __name__ == '__main__':
