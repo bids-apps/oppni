@@ -12,6 +12,7 @@ import subprocess
 
 global mcr_path, afni_path, fsl_path
 
+
 def validate_env_var(var):
     assert os.getenv(var) is not None, "Path {} is not defined. Fix your environment and rerun.".format(var)
 
@@ -27,6 +28,55 @@ def validate_user_env():
     mcr_path  = os.getenv('MCR_PATH')
     afni_path = os.getenv('AFNI_PATH')
 
+
+def run_cmd_realtime_stdout(cmd):
+    """
+    Adapted from http://blog.kagesenshi.org/2008/02/teeing-python-subprocesspopen-output.html
+    """
+    p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    stdout = []
+    while True:
+        line = p.stdout.readline()
+        stdout.append(line)
+        print line,
+        if line == '' and p.poll() != None:
+            break
+    return ''.join(stdout)
+
+
+def run_cmd(command, env={}, cwd=None):
+    """
+    Allows you to run a cmd and tee its output to tty realtime.
+    """
+    
+    merged_env = os.environ
+    merged_env.update(env)
+    merged_env.pop("DEBUG", None)
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                    shell=True, env=merged_env, cwd=cwd)
+    
+    stdout = []
+    while True:
+        line = process.stdout.readline()
+        line = str(line)[:-1]
+        stdout.append(line)
+        print(line)
+        if line == '' and process.poll() != None:
+            break
+    if process.returncode != 0:
+        raise Exception("Non zero return code: %d"%process.returncode)
+
+    return ''.join(stdout)
+
+
+def validate_bids_spec(dir):
+    """
+    Ensuring the validity of the dataset.
+    """
+    
+    cmd = "/usr/bin/bids-validator {}".format(os.path.abspath(dir))
+    run_cmd(cmd)
+    
 
 def parse_args_check():
     "Parsing the cmd line args and making basic checks."
@@ -54,7 +104,7 @@ def parse_args_check():
     return args
 
 
-def run_part_one(bids_dir, subject_label, task_name, output_dir):
+def run_part_one(bids_dir, subject_label, task_name, output_dir, analysis_level):
     """Runs unit-level computation on a given list of subjects/runs."""
 
     anat_file = 'None'
@@ -81,20 +131,27 @@ def run_part_one(bids_dir, subject_label, task_name, output_dir):
     #                                                          physio_file, drop_beg, drop_end, task_json,
     #                                                          events_tsv)
 
-    output_dir_sub = os.path.join(output_dir,"sub-%s" % subject_label)
-    cmd = "run_oppni.sh %s PART1 %s %s %s %s %d %d %s %s" % (mcr_path, epi_list[0],
-                                                                output_dir_sub, anat_file_list[0],
-                                                                physio_file, drop_beg, drop_end, task_json,
-                                                                events_tsv)
+    # output_dir_sub = os.path.join(output_dir,"sub-%s" % subject_label)
+    # cmd = "run_oppni.sh %s PART1 %s %s %s %s %d %d %s %s" % (mcr_path, epi_list[0],
+    #                                                             output_dir_sub, anat_file_list[0],
+    #                                                             physio_file, drop_beg, drop_end, task_json,
+    #                                                             events_tsv)
+
+    # new requirements for the matlab entry wrapper Oct 12, 2016
+    cmd = "run_oppni.sh %s %s %s %s %s %s %s %s %s %s" % (mcr_path, bids_dir, output_dir, analysis_level,
+                                                    "--participant", subject_label,
+                                                    "--run_name", task_name,
+                                                    "--task_design", "event")
 
     print(cmd)
-    print('Exiting without processing to get the CI build complete and cached.')
-    # try:
-    #     txt_out = subprocess.check_output(cmd, shell=True)
-    #     print txt_out
-    # except:
-    #     print("Unexpected error:", sys.exc_info()[0])
-    #     raise
+    try:
+        # txt_out = subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
+        #print txt_out
+        run_cmd(cmd)
+    except:
+        exc = sys.exc_info()
+        print("Unexpected error: {}".format(exc[0]))
+        raise
 
 
 def run_oppni():
@@ -105,6 +162,8 @@ def run_oppni():
     args = parse_args_check()
 
     validate_user_env()
+
+    validate_bids_spec(args.bids_dir)
 
     task_group = 'linebisection'
 
@@ -118,7 +177,7 @@ def run_oppni():
     if args.analysis_level in [ "participant", "participant1"]:
 
         assert args.participant_label not in [None, ''], "Subject label must be non-empty."
-        run_part_one(args.bids_dir, args.participant_label, task_group, args.output_dir )
+        run_part_one(args.bids_dir, args.participant_label, task_group, args.output_dir, args.analysis_level )
 
         # # TODO generate an error when the processing is not successful
         # input_file = os.path.join(args.output_dir, 'input_files',args.participant_label+'.txt')

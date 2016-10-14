@@ -6,12 +6,12 @@
 #
 exe_name=$0
 exe_dir=`dirname "$0"`
-echo "------------------------------------------"
+
 if [ "x$1" = "x" ]; then
   echo Usage:
   echo    $0 \<deployedMCRroot\> args
 else
-  echo Setting up environment variables
+  #echo Setting up environment variables
   MCRROOT="$1"
   echo ---
   LD_LIBRARY_PATH=.:${MCRROOT}/runtime/glnxa64 ;
@@ -25,15 +25,10 @@ else
   XAPPLRESDIR=${MCRROOT}/X11/app-defaults ;
   export LD_LIBRARY_PATH;
   export XAPPLRESDIR;
-  echo LD_LIBRARY_PATH is ${LD_LIBRARY_PATH};
+  # echo LD_LIBRARY_PATH is ${LD_LIBRARY_PATH};
   shift 1
-  args=
-  while [ $# -gt 0 ]; do
-      token=$1
-      args="${args} ${token}" 
-      shift
-  done
-  "${exe_dir}"/oppni $args
+
+  "${exe_dir}"/oppni "$@"
 fi
 exit
 

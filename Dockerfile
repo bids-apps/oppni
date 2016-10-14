@@ -40,6 +40,11 @@ RUN apt-get -qq update && apt-get -qq install -y unzip xorg wget curl && \
     cd / && \
     rm -rf /mcr-install
 
+# bids validator in js
+RUN curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash -
+RUN sudo apt-get -y install nodejs 
+RUN npm install -g bids-validator
+
 RUN mkdir -p /code
 RUN mkdir /oppni
 RUN mkdir /projects
