@@ -73,7 +73,7 @@ def validate_bids_spec(dir):
     """
     Ensuring the validity of the dataset.
     """
-    
+
     cmd = "/usr/bin/bids-validator {}".format(os.path.abspath(dir))
     run_cmd(cmd)
     
@@ -181,6 +181,7 @@ def run_oppni():
 
     validate_user_env()
 
+    assert os.path.exists(args.bids_dir), "Path to the specified BIDS dataset doesn't exist. Please rerun."
     validate_bids_spec(args.bids_dir)
 
     task_group = 'linebisection'
