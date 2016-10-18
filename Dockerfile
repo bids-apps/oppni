@@ -57,4 +57,4 @@ COPY oppni.py /oppni/
 ENV OPPNI /oppni
 ENV PATH $OPPNI:$PATH
 
-
+ENTRYPOINT ["python", "/oppni/oppni.py"]
