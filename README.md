@@ -19,6 +19,24 @@ As part of optimization, OPPNI creates Z-scored maps of brain activity for each 
 If you cannot analyze your data (or OPPNI does not have the appropriate analysis tools), you can still preprocess your time series using OPPNI without doing optimization. Our scripts make it straightforward to choose the pipeline steps that you want, and perform automatic batch preprocessing of large datasets.
 Implementation
 
+# Usage
+
+To build the docker, type:
+
+```
+$ docker build -t <preferred_name>/oppni .
+```
+
+To process a BIDS dataset, run the following command:
+
+```
+$ docker run <preferred_name>/oppni bids_dir output_dir level [--participant_label PARTICIPANT_LABEL [PARTICIPANT_LABEL ...]]
+```
+
+## Bugs and feedback
+
+If you have a specific problem with this App or have some feedback, please open an [issue](https://github.com/BIDS-Apps/oppni/issues) or message @raamana.
+
 # Code design
 Preprocessing and analysis scripts are coded in Matlab/Octave, and functions are called and managed using Python scripts. The code tests all possible combinations of a set of 12 different preprocessing steps, to identify the optimal pipeline for each fMRI dataset that is being tested. Current preprocessing options include AFNI utilities (Analysis of Functional NeuroImaging; Cox, 1996), along with a set of functions developed in-house. All steps are widely used in the fMRI literature, or demonstrated to be important in prior studies of pipeline optimization (e.g. Tegeler et al., 1999; La Conte et al., 2003; Shaw et al., 2003; Strother et al., 2004; Zhang et al., 2009; Churchill et al., 2012a, 2012b, 2015). Pipeline optimization is analysis-driven: it evaluates the quality of analysis results for each pipeline, via Prediction and Reproducibility metrics, and selects the pipeline that gives highest-quality outputs. Analysis techniques are “modular” – you choose the task design and analysis model you wish to optimize, from a list of available models. The pipeline software also includes a procedure for automated spatial normalization of subjects to an anatomical template, using FSL utilities. This enables users to run group-level analysis of preprocessed results across subjects and task runs.
 
