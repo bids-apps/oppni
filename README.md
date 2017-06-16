@@ -6,15 +6,15 @@ This repository provides OPPNI (Optimization of Preprocessing Pipelines for Neur
 
 # What can OPPNI do for you?
 
-##Clean up your data:
+## Clean up your data:
 
 It will automatically output time series data that has been optimally processed to control for noise and artifact (e.g. due to motion, physiology, scanner noise), which you can then use for further analysis. Automated de-noising is done based on replicable, statistical criteria; no more tedious batch scripting, or hand-selection of ICA components!
 
-##Analyze your data:
+## Analyze your data:
 
 As part of optimization, OPPNI creates Z-scored maps of brain activity for each dataset. You can directly report these results, or take individual activation maps and do group-level analysis. OPPNI can perform univariate predictive GLM (i.e., Gauss Naive Bayes) or multivariate predictive discriminant (i.e., regularised Canonical Variates Analysis) analysis of brain activity including standard, nonpredictive GLM (see manual for caveats). This can be done for a variety of different paradigm designs, including event-related and block-design tasks. Recent additions also include seed-based connectivity and component modelling, i.e., selecting an optimal PCA subspace.
 
-##Run batched pipelines:
+## Run batched pipelines:
 
 If you cannot analyze your data (or OPPNI does not have the appropriate analysis tools), you can still preprocess your time series using OPPNI without doing optimization. Our scripts make it straightforward to choose the pipeline steps that you want, and perform automatic batch preprocessing of large datasets.
 Implementation
@@ -41,10 +41,10 @@ If you have a specific problem with this App or have some feedback, please open 
 Preprocessing and analysis scripts are coded in Matlab/Octave, and functions are called and managed using Python scripts. The code tests all possible combinations of a set of 12 different preprocessing steps, to identify the optimal pipeline for each fMRI dataset that is being tested. Current preprocessing options include AFNI utilities (Analysis of Functional NeuroImaging; Cox, 1996), along with a set of functions developed in-house. All steps are widely used in the fMRI literature, or demonstrated to be important in prior studies of pipeline optimization (e.g. Tegeler et al., 1999; La Conte et al., 2003; Shaw et al., 2003; Strother et al., 2004; Zhang et al., 2009; Churchill et al., 2012a, 2012b, 2015). Pipeline optimization is analysis-driven: it evaluates the quality of analysis results for each pipeline, via Prediction and Reproducibility metrics, and selects the pipeline that gives highest-quality outputs. Analysis techniques are “modular” – you choose the task design and analysis model you wish to optimize, from a list of available models. The pipeline software also includes a procedure for automated spatial normalization of subjects to an anatomical template, using FSL utilities. This enables users to run group-level analysis of preprocessed results across subjects and task runs.
 
 
-#Acknowledgements
+# Acknowledgements
 
 
-#References
+# References
 
 Churchill NW et al. (2012a): Optimizing Preprocessing and Analysis Pipelines for Single-Subject FMRI. I. Standard Temporal Motion and Physiological Noise Correction Methods. Human Brain Mapping 33:609–627
 
