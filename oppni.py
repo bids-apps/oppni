@@ -99,6 +99,8 @@ def parse_args_check():
                                                     'provided all subjects should be analyzed. Multiple '
                                                     'participants can be specified with a space separated list.')
 
+    parser.add_argument('--task_name', help='Task name.')    
+
     args = parser.parse_args()
 
     return args
@@ -184,7 +186,7 @@ def run_oppni():
     assert os.path.exists(args.bids_dir), "Path to the specified BIDS dataset doesn't exist. Please rerun."
     validate_bids_spec(args.bids_dir)
 
-    task_group = 'linebisection'
+    task_group = args.task_name
 
     # status_check_dir = os.path.join(args.output_dir, 'status_checks')
     # if not os.path.exists(status_check_dir):
