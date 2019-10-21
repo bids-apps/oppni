@@ -99,7 +99,7 @@ def parse_args_check():
                                                     'provided all subjects should be analyzed. Multiple '
                                                     'participants can be specified with a space separated list.')
 
-    parser.add_argument('--task_name', help='Task name.')    
+    parser.add_argument('--task_name', default = "",  help='Task name.')    
 
     args = parser.parse_args()
 
