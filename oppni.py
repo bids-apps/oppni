@@ -97,7 +97,7 @@ def parse_args_check():
                                                     'corresponds to sub-<participant_label> from the BIDS spec '
                                                     '(so it does not include "sub-"). If this parameter is not '
                                                     'provided all subjects should be analyzed. Multiple '
-                                                    'participants can be specified with a space separated list.')
+                                                    'participants can be specified with a space separated list.', nargs="+")
 
     parser.add_argument('--task_name', default = "",  help='Task name.')    
 
