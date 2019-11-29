@@ -46,7 +46,7 @@ RUN sudo apt-get -y install nodejs
 RUN npm install -g bids-validator@0.21.2
 
 #LMP - seems bids-validator requires yargs
-RUN npm init
+#RUN npm init
 RUN npm i yargs --save
 
 RUN mkdir -p /code
