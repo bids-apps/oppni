@@ -41,9 +41,9 @@ RUN apt-get -qq update && apt-get -qq install -y unzip xorg wget curl && \
     rm -rf /mcr-install
 
 # bids validator in js
-RUN curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
+RUN curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
 RUN sudo apt-get -y install nodejs 
-RUN npm install -g bids-validator@0.21.2
+RUN npm install -g bids-validator
 
 #LMP - seems bids-validator requires yargs
 #RUN npm init
