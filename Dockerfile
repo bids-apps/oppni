@@ -45,6 +45,10 @@ RUN curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
 RUN sudo apt-get -y install nodejs 
 RUN npm install -g bids-validator@0.21.2
 
+#LMP - seems bids-validator requires yargs
+RUN npm init
+RUN npm i yargs --save
+
 RUN mkdir -p /code
 RUN mkdir /oppni
 RUN mkdir /projects
