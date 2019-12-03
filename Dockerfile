@@ -13,7 +13,7 @@ ENV AFNI_PATH /usr/lib/afni/bin
 ENV FSL_PATH $FSLDIR/bin/
 ENV MCR_PATH /opt/mcr/v80/
 ENV PATH $AFNI_PATH:$FSL_PATH:$MCR_PATH:$PATH
-ENV TMPDIR=/tmp
+
 
 ENV DYLD_FALLBACK_LIBRARY_PATH $AFNI_PATH
 
@@ -23,7 +23,6 @@ RUN /tmp/cpac_install.sh -p
 RUN /tmp/cpac_install.sh -n fsl
 # disabling cpac afni install below to try other ways
 #RUN /tmp/cpac_install.sh -n afni
-
 
 #
 RUN apt-get install -y python
@@ -40,6 +39,8 @@ RUN apt-get -qq update && apt-get -qq install -y unzip xorg wget curl && \
     ./install -destinationFolder /opt/mcr -agreeToLicense yes -mode silent && \
     cd / && \
     rm -rf /mcr-install
+
+ENV MCR_CACHE_ROOT=/tmp 
 
 # bids validator in js
 RUN curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
