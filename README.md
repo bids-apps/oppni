@@ -30,7 +30,7 @@ $ docker build -t <preferred_name>/oppni .
 To process a BIDS dataset, run the following command:
 
 ```
-$ docker run <preferred_name>/oppni bids_dir output_dir level [--participant_label PARTICIPANT_LABEL [PARTICIPANT_LABEL ...]]
+$ docker run <preferred_name>/oppni bids_dir output_dir level [--participant_label PARTICIPANT_LABEL [PARTICIPANT_LABEL ...]] --task_name TASK
 ```
 
 ## Bugs and feedback
