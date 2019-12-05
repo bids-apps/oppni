@@ -1,3 +1,4 @@
+#Template incluses ubuntu, node, bids-validator, afni
 FROM bids/base_afni
 
 # Configure environment
@@ -19,7 +20,7 @@ ENV DYLD_FALLBACK_LIBRARY_PATH $AFNI_PATH
 
 COPY cpac_install.sh /tmp/cpac_install.sh
 RUN /tmp/cpac_install.sh -s
-RUN /tmp/cpac_install.sh -p 
+#RUN /tmp/cpac_install.sh -p 
 RUN /tmp/cpac_install.sh -n fsl
 # disabling cpac afni install below to try other ways
 #RUN /tmp/cpac_install.sh -n afni
