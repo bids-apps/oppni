@@ -1,6 +1,6 @@
 [![CircleCI](https://circleci.com/gh/BIDS-Apps/oppni.svg?style=svg)](https://circleci.com/gh/BIDS-Apps/oppni)
 
-#OPPNI (Optimization of Preprocessing Pipelines for NeuroImaging) for fMRI analysis
+# OPPNI (Optimization of Preprocessing Pipelines for NeuroImaging) for fMRI analysis
 
 This repository provides OPPNI (Optimization of Preprocessing Pipelines for NeuroImaging), which does fast optimization of preprocessing pipelines for BOLD fMRI (Blood Oxygenation Level Dependent functional MRI). OPPNI identifies the set of preprocessing steps (“pipeline”) specific to each dataset, which optimizes quality metrics of cross-validated Prediction and/or spatial-pattern Reproducibility for a range of analysis models (Strother et al., 2002, 2004; LaConte et al., 2003; Shaw et al., 2003). This procedure has been shown to significantly improve signal detection for individual scan sessions, overlap of brain activations for test-retest and group analysis, and sensitivity to brain-behaviour correlations (Churchill et al., 2012a, 2012b, 2015). The pipeline software can also be used for simple automated batch-processing of fMRI datasets, if no appropriate predictive analysis model is available to do optimization (e.g. some resting-state connectivity studies).
 
@@ -23,13 +23,13 @@ Implementation
 
 To build the docker, type:
 
-```
+```bash
 $ docker build -t <preferred_name>/oppni .
 ```
 
 To process a BIDS dataset, run the following command:
 
-```
+```bash
 $ docker run <preferred_name>/oppni bids_dir output_dir level [--participant_label PARTICIPANT_LABEL [PARTICIPANT_LABEL ...]] --task_name TASK
 ```
 
