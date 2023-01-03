@@ -3,7 +3,7 @@ version: 2
 jobs:
   build:
     machine:
-      image: circleci/classic:latest
+      image: circleci/classic:latest     
 
     steps:
       - checkout
@@ -11,88 +11,142 @@ jobs:
           keys:
             - my_cache
 
-      - run: if [[ ! -d ~/data/ds114_test1 ]]; then wget -c -O ${HOME}/ds114_test1.tar "https://files.osf.io/v1/resources/9q7dv/providers/osfstorage/57e54a326c613b01d7d3ed90" && mkdir -p ${HOME}/data && tar xf ${HOME}/ds114_test1.tar -C ${HOME}/data; fi
-      - run: if [[ ! -d ~/data/ds114_test2 ]]; then wget -c -O ${HOME}/ds114_test2.tar "https://files.osf.io/v1/resources/9q7dv/providers/osfstorage/57e549f9b83f6901d457d162" && mkdir -p ${HOME}/data && tar xf ${HOME}/ds114_test2.tar -C ${HOME}/data; fi
-      - run: if [[ -e ~/docker/image.tar ]]; then docker load -i ~/docker/image.tar; fi
-      - run: git describe --tags --always > version
       - run:
-          command: docker build -t bids/${CIRCLE_PROJECT_REPONAME,,} .
-          no_output_timeout: 6h
-      - run: mkdir -p ~/docker; docker save "bids/${CIRCLE_PROJECT_REPONAME,,}" > ~/docker/image.tar
-      - run: mkdir -p ${HOME}/outputs
+          name: 'Get test data: ds114_test1'
+          command: |
+            if [[ ! -d ~/data/ds114_test1 ]]; then
+              wget -c -O ${HOME}/ds114_test1.tar "https://osf.io/download/zerfq/" && \
+              mkdir -p ${HOME}/data && \
+              tar xf ${HOME}/ds114_test1.tar -C ${HOME}/data;
+            fi
+      - run:
+          name: 'Get test data: ds114_test2'
+          command: |
+            if [[ ! -d ~/data/ds114_test2 ]]; then
+              wget -c -O ${HOME}/ds114_test2.tar "https://osf.io/download/eg4ma/" && \
+              mkdir -p ${HOME}/data && \
+              tar xf ${HOME}/ds114_test2.tar -C ${HOME}/data;
+            fi
+
+      - run:
+          name: Build Docker image
+          command: |
+            if [[ -e ~/docker/image.tar ]]; \
+              then docker load -i ~/docker/image.tar;
+            fi
+            git describe --tags --always > version
+            docker build -t bids/${CIRCLE_PROJECT_REPONAME,,} .
+            mkdir -p ${HOME}/docker
+            docker save "bids/${CIRCLE_PROJECT_REPONAME,,}" > ~/docker/image.tar
 
       - save_cache:
           key: my_cache
           paths:
-            - "~/docker"
-            - "~/data"
-
-      # print version
-      # - run: docker run -ti --rm --read-only -v /tmp:/tmp -v /var/tmp:/var/tmp -v ${HOME}/data/ds114_test1:/bids_dataset bids/${CIRCLE_PROJECT_REPONAME,,} --version
-      # participant level tests for single session dataset
-      #- run:
-      #    command: docker run -ti --rm --read-only -v /tmp:/tmp -v /var/tmp:/var/tmp -v ${HOME}/data/ds114_test1:/bids_dataset -v ${HOME}/outputs1:/outputs bids/${CIRCLE_PROJECT_REPONAME,,} /bids_dataset /outputs participant --participant_label 01 --task_name linebisection
-      #    no_output_timeout: 6h
-      #- run:
-      #    command: docker run -ti --rm --read-only -v /tmp:/tmp -v /var/tmp:/var/tmp -v ${HOME}/data/ds114_test1:/bids_dataset -v ${HOME}/outputs1:/outputs bids/${CIRCLE_PROJECT_REPONAME,,} /bids_dataset /outputs participant --participant_label 02 --task_name linebisection
-      #    no_output_timeout: 6h 
-      # group level test for single session dataset
-      #- run:
-      #    command: docker run -ti --rm --read-only -v /tmp:/tmp -v /var/tmp:/var/tmp -v ${HOME}/data/ds114_test1:/bids_dataset -v ${HOME}/outputs1:/outputs bids/${CIRCLE_PROJECT_REPONAME,,} /bids_dataset /outputs group --task_name linebisection
-      #    no_output_timeout: 6h
-      
-      # participant level tests for a longitudinal dataset
-      - run:
-          command: docker run -ti --rm --read-only -v /tmp:/tmp -v /var/tmp:/var/tmp -v ${HOME}/data/ds114_test2:/bids_dataset -v ${HOME}/outputs2:/outputs bids/${CIRCLE_PROJECT_REPONAME,,} /bids_dataset /outputs participant --participant_label 01 --task_name linebisection
-          no_output_timeout: 6h
-      - run:
-          command: docker run -ti --rm --read-only -v /tmp:/tmp -v /var/tmp:/var/tmp -v ${HOME}/data/ds114_test2:/bids_dataset -v ${HOME}/outputs2:/outputs bids/${CIRCLE_PROJECT_REPONAME,,} /bids_dataset /outputs participant --participant_label 02 --task_name linebisection
-          no_output_timeout: 6h
-          
-      # group level test for a longitudinal dataset
-      - run:
-          command: docker run -ti --rm --read-only -v /tmp:/tmp -v /var/tmp:/var/tmp -v ${HOME}/data/ds114_test2:/bids_dataset -v ${HOME}/outputs2:/outputs bids/${CIRCLE_PROJECT_REPONAME,,} /bids_dataset /outputs group --task_name linebisection
-          no_output_timeout: 6h
-
-      #- store_artifacts:
-      #    path: "~/output1"
-      - store_artifacts:
-          path: "~/output2"
+          - ~/docker
+          - ~/data
 
       - persist_to_workspace:
-          root: ~/docker
+          root: /home/circleci
           paths:
-            - image.tar
- 
-  deployment:
-    docker:
-      - image: circleci/buildpack-deps:stretch
+          - data/ds114_test1
+          - data/ds114_test2
+          - docker/image.tar
+
+  test:
+    machine:
+      image: ubuntu-2204:2022.10.2
+
+    parameters:
+      dataset:
+        type: string 
 
     steps:
+
       - attach_workspace:
           at: /tmp/workspace
-      - setup_remote_docker
-      - run: docker load -i /tmp/workspace/image.tar
       - run:
-          command: if [[ -n "$DOCKER_PASS" ]]; then docker login -u $DOCKER_USER -p $DOCKER_PASS && docker push bids/${CIRCLE_PROJECT_REPONAME,,}:latest; fi
+          command: |
+            docker load -i /tmp/workspace/docker/image.tar
+
+      - run: mkdir -p ${HOME}/outputs<< parameters.dataset >>
+
+      - run:
+          name: print version
+          command: |
+            docker run -ti --rm --read-only \
+              -v /tmp:/tmp \
+              -v /var/tmp:/var/tmp \
+              -v /tmp/workspace/data/ds114_test<< parameters.dataset >>:/bids_dataset \
+              -v ${HOME}/outputs<< parameters.dataset >>:/outputs \
+                bids/${CIRCLE_PROJECT_REPONAME,,} --version
           no_output_timeout: 6h
       - run:
-          command: if [[ -n "$DOCKER_PASS" ]]; then docker login -u $DOCKER_USER -p $DOCKER_PASS && docker tag bids/${CIRCLE_PROJECT_REPONAME,,} bids/${CIRCLE_PROJECT_REPONAME,,}:$CIRCLE_TAG && docker push bids/${CIRCLE_PROJECT_REPONAME,,}:$CIRCLE_TAG; fi
+          name: participant_label 01
+          command: |
+            docker run -ti --rm --read-only \
+              -v /tmp:/tmp \
+              -v /var/tmp:/var/tmp \
+              -v /tmp/workspace/data/ds114_test<< parameters.dataset >>:/bids_dataset \
+              -v ${HOME}/outputs<< parameters.dataset >>:/outputs \              
+                bids/${CIRCLE_PROJECT_REPONAME,,} /bids_dataset /outputs participant --participant_label 01 --task_name linebisection
+          no_output_timeout: 6h
+      - run:
+          name: participant_label 02      
+          command: |
+            docker run -ti --rm --read-only \
+              -v /tmp:/tmp \
+              -v /var/tmp:/var/tmp \
+              -v /tmp/workspace/data/ds114_test<< parameters.dataset >>:/bids_dataset \
+              -v ${HOME}/outputs<< parameters.dataset >>:/outputs \              
+                bids/${CIRCLE_PROJECT_REPONAME,,} /bids_dataset /outputs participant --participant_label 02 --task_name linebisection
+          no_output_timeout: 6h
+      - run:
+          name: group level
+          command: |
+            docker run -ti --rm --read-only \
+              -v /tmp:/tmp \
+              -v /var/tmp:/var/tmp \
+              -v /tmp/workspace/data/ds114_test<< parameters.dataset >>:/bids_dataset \
+              -v ${HOME}/outputs<< parameters.dataset >>:/outputs \              
+                bids/${CIRCLE_PROJECT_REPONAME,,} /bids_dataset /outputs group --task_name linebisection
           no_output_timeout: 6h
 
+      - store_artifacts:
+          path: "~/output<< parameters.dataset >>"
+
+
+  deploy:
+
+    machine:
+      image: ubuntu-2204:2022.10.2
+
+    steps:
+    - attach_workspace:
+        at: /tmp/workspace
+
+    - run: docker load -i /tmp/workspace/docker/image.tar
+    - run:
+        name: push to dockerhub
+        command: |
+          docker login --username ${DOCKER_USER} --password ${DOCKER_PASS}
+          docker push bids/${CIRCLE_PROJECT_REPONAME,,}:unstable
+          if [[ -n "${CIRCLE_TAG}" ]]; then
+            docker push bids/${CIRCLE_PROJECT_REPONAME,,}:latest
+            docker tag bids/${CIRCLE_PROJECT_REPONAME,,} bids/${CIRCLE_PROJECT_REPONAME,,}:${CIRCLE_TAG}
+            docker push bids/${CIRCLE_PROJECT_REPONAME,,}:${CIRCLE_TAG}
+          fi
+
 workflows:
-  version: 2
   build-test-deploy:
     jobs:
-      - build:
-          filters:
-            tags:
-              only: /.*/
-      - deployment:
-          requires:
-            - build
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /.*/
+    - build
+    - test:
+        requires:
+        - build
+    - deploy:
+        requires:
+        - test
+        filters:
+          tags:
+            only: /.*/
+# VS Code Extension Version: 1.5.1
