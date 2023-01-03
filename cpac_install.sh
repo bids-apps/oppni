@@ -141,14 +141,14 @@ function install_system_dependencies {
             #yum update -y
             cd /tmp && wget ${epel_url} && rpm -Uvh ${epel_rpm}
 
-            yum install -y ${missing_system_dependencies[@]} 
+            yum install -y ${missing_system_dependencies[@]}
             if [ $? -ne 0 ]
             then
                 system_dependencies_installed=0
                 echo "[ $(date) ] yum failed to install packages: ${missing_system_dependencies[@]}"
                 echo "[ $(date) ] yum failed to install packages: ${missing_system_dependencies[@]}" \
                     >> ~/cpac.log
-            else	
+            else
                 echo "[ $(date) ] : yum Installed C-PAC system dependency"\
                     "${missing_system_dependencies[@]}"
                 echo "[ $(date) ] : yum Installed C-PAC system dependency"
@@ -176,14 +176,14 @@ function install_system_dependencies {
             #apt-get update
             #apt-get upgrade -y
 
-            apt-get install -y ${missing_system_dependencies[@]} 
+            apt-get install -y ${missing_system_dependencies[@]}
             if [ $? -ne 0 ]
             then
                 system_dependencies_installed=0
                 echo "[ $(date) ] apt-get failed to install packages: ${missing_system_dependencies[@]}"
                 echo "[ $(date) ] apt-get failed to install packages: ${missing_system_dependencies[@]}" \
                     >> ~/cpac.log
-            else	
+            else
                 echo "[ $(date) ] : apt-get Installed C-PAC system dependency"\
                     "${missing_system_dependencies[@]}"
                 echo "[ $(date) ] : apt-get Installed C-PAC system dependency"
@@ -201,7 +201,7 @@ function install_system_dependencies {
            #         echo "[ $(date) ] : Failed to install C-PAC system dependency $p" \
            #             >> ~/cpac.log
 	   #     else
-           #         echo "[ $(date) ] : Installed C-PAC system dependency $p" 
+           #         echo "[ $(date) ] : Installed C-PAC system dependency $p"
            #         echo "[ $(date) ] : Installed C-PAC system dependency $p" \
            #             >> ~/cpac.log
            #     fi
@@ -296,7 +296,7 @@ function install_python_dependencies {
         exit 1
     fi
 
-    # for now always install miniconda, in the future should only install 
+    # for now always install miniconda, in the future should only install
     # if not there
     echo "[ $(date) ] Installing miniconda!"
     echo "[ $(date) ] Installing miniconda!" >> ~/cpac.log
@@ -309,7 +309,7 @@ function install_python_dependencies {
         then
             echo "[ $(date) ] Could not download miniconda installation script!"
             echo "[ $(date) ] Could not download miniconda installation script!" >> ~/cpac.log
-            return 
+            return
         fi
     fi
     chmod +x Miniconda-3.8.3-Linux-x86_64.sh
@@ -320,7 +320,7 @@ function install_python_dependencies {
         then
             echo "[ $(date) ] Miniconda installation failed!"
             echo "[ $(date) ] Miniconda installation failed!" >> ~/cpac.log
-            #return 
+            #return
         fi
         chmod -R 775 /usr/local/bin/miniconda
         chmod g+s /usr/local/bin/miniconda
@@ -333,7 +333,7 @@ function install_python_dependencies {
         then
             echo "[ $(date) ] Miniconda installation failed!"
             echo "[ $(date) ] Miniconda installation failed!" >> ~/cpac.log
-            return 
+            return
         fi
         export PATH=~/miniconda/bin:${PATH}
         echo 'export PATH=~/miniconda/bin:${PATH}' >> ~/cpac_env.sh
@@ -347,7 +347,7 @@ function install_python_dependencies {
     then
         echo "[ $(date) ] Conda install ${p} failed!"
         echo "[ $(date) ] Conda install ${p} failed!" >> ~/cpac.log
-        exit 1 
+        exit 1
     fi
     #for p in ${missing_conda_dependencies[@]}
     #do
@@ -357,7 +357,7 @@ function install_python_dependencies {
         #then
             #echo "[ $(date) ] Conda install ${p} failed!"
             #echo "[ $(date) ] Conda install ${p} failed!" >> ~/cpac.log
-            #exit 1 
+            #exit 1
         #fi
     #done
 
@@ -366,7 +366,7 @@ function install_python_dependencies {
     then
         echo "[ $(date) ] Pip install ${missing_pip_dependencies[@]} failed!"
         echo "[ $(date) ] Pip install ${p} failed!" >> ~/cpac.log
-        exit 1 
+        exit 1
     fi
     #for p in ${missing_pip_dependencies[@]}
     #do
@@ -376,7 +376,7 @@ function install_python_dependencies {
         #then
             #echo "[ $(date) ] Pip install ${p} failed!"
             #echo "[ $(date) ] Pip install ${p} failed!" >> ~/cpac.log
-            #exit 1 
+            #exit 1
         #fi
     #done
 
@@ -562,7 +562,7 @@ function install_fsl {
         then
             echo FSL cannot be installed without root privileges on Ubuntu Linux.
             echo "[ $(date) ] : FSL installation failed - need root privileges" \
-                "on Ubuntu." >> ~/cpac.log 
+                "on Ubuntu." >> ~/cpac.log
             cd $INIT_DIR
             install_cpac_env
             exit 1
@@ -900,7 +900,7 @@ function install_cpac_env {
         then
             if [ -f /etc/profile.d/cpac_env.sh ]
             then
-                # Since functions will not re-install already installed 
+                # Since functions will not re-install already installed
                 # software, this should only append
                 # packages that weren't already in cpac_env.sh.
                 cat ~/cpac_env.sh >> /etc/profile.d/cpac_env.sh

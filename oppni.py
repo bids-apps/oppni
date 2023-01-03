@@ -48,13 +48,13 @@ def run_cmd(command, env={}, cwd=None):
     """
     Allows you to run a cmd and tee its output to tty realtime.
     """
-    
+
     merged_env = os.environ
     merged_env.update(env)
     merged_env.pop("DEBUG", None)
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                     shell=True, env=merged_env, cwd=cwd)
-    
+
     stdout = []
     while True:
         line = process.stdout.readline()
@@ -76,7 +76,7 @@ def validate_bids_spec(dir):
 
     cmd = "/usr/bin/bids-validator {}".format(os.path.abspath(dir))
     run_cmd(cmd)
-    
+
 
 def parse_args_check():
     "Parsing the cmd line args and making basic checks."
@@ -99,7 +99,7 @@ def parse_args_check():
                                                     'provided all subjects should be analyzed. Multiple '
                                                     'participants can be specified with a space separated list.', nargs="+")
 
-    parser.add_argument('--task_name', default = "",  help='Task name.')    
+    parser.add_argument('--task_name', default = "",  help='Task name.')
 
     args = parser.parse_args()
 

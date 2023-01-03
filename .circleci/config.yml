@@ -1,56 +1,57 @@
+---
 version: 2
 
 jobs:
   build:
     machine:
-      image: circleci/classic:latest     
+      image: circleci/classic:latest
 
     steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - my_cache
+    - checkout
+    - restore_cache:
+        keys:
+        - my_cache
 
-      - run:
-          name: 'Get test data: ds114_test1'
-          command: |
-            if [[ ! -d ~/data/ds114_test1 ]]; then
-              wget -c -O ${HOME}/ds114_test1.tar "https://osf.io/download/zerfq/" && \
-              mkdir -p ${HOME}/data && \
-              tar xf ${HOME}/ds114_test1.tar -C ${HOME}/data;
-            fi
-      - run:
-          name: 'Get test data: ds114_test2'
-          command: |
-            if [[ ! -d ~/data/ds114_test2 ]]; then
-              wget -c -O ${HOME}/ds114_test2.tar "https://osf.io/download/eg4ma/" && \
-              mkdir -p ${HOME}/data && \
-              tar xf ${HOME}/ds114_test2.tar -C ${HOME}/data;
-            fi
+    - run:
+        name: 'Get test data: ds114_test1'
+        command: |
+          if [[ ! -d ~/data/ds114_test1 ]]; then
+            wget -c -O ${HOME}/ds114_test1.tar "https://osf.io/download/zerfq/" && \
+            mkdir -p ${HOME}/data && \
+            tar xf ${HOME}/ds114_test1.tar -C ${HOME}/data;
+          fi
+    - run:
+        name: 'Get test data: ds114_test2'
+        command: |
+          if [[ ! -d ~/data/ds114_test2 ]]; then
+            wget -c -O ${HOME}/ds114_test2.tar "https://osf.io/download/eg4ma/" && \
+            mkdir -p ${HOME}/data && \
+            tar xf ${HOME}/ds114_test2.tar -C ${HOME}/data;
+          fi
 
-      - run:
-          name: Build Docker image
-          command: |
-            if [[ -e ~/docker/image.tar ]]; \
-              then docker load -i ~/docker/image.tar;
-            fi
-            git describe --tags --always > version
-            docker build -t bids/${CIRCLE_PROJECT_REPONAME,,} .
-            mkdir -p ${HOME}/docker
-            docker save "bids/${CIRCLE_PROJECT_REPONAME,,}" > ~/docker/image.tar
+    - run:
+        name: Build Docker image
+        command: |
+          if [[ -e ~/docker/image.tar ]]; \
+            then docker load -i ~/docker/image.tar;
+          fi
+          git describe --tags --always > version
+          docker build -t bids/${CIRCLE_PROJECT_REPONAME,,} .
+          mkdir -p ${HOME}/docker
+          docker save "bids/${CIRCLE_PROJECT_REPONAME,,}" > ~/docker/image.tar
 
-      - save_cache:
-          key: my_cache
-          paths:
-          - ~/docker
-          - ~/data
+    - save_cache:
+        key: my_cache
+        paths:
+        - ~/docker
+        - ~/data
 
-      - persist_to_workspace:
-          root: /home/circleci
-          paths:
-          - data/ds114_test1
-          - data/ds114_test2
-          - docker/image.tar
+    - persist_to_workspace:
+        root: /home/circleci
+        paths:
+        - data/ds114_test1
+        - data/ds114_test2
+        - docker/image.tar
 
   test:
     machine:
@@ -58,61 +59,61 @@ jobs:
 
     parameters:
       dataset:
-        type: string 
+        type: string
 
     steps:
 
-      - attach_workspace:
-          at: /tmp/workspace
-      - run:
-          command: |
-            docker load -i /tmp/workspace/docker/image.tar
+    - attach_workspace:
+        at: /tmp/workspace
+    - run:
+        command: |
+          docker load -i /tmp/workspace/docker/image.tar
 
-      - run: mkdir -p ${HOME}/outputs<< parameters.dataset >>
+    - run: mkdir -p ${HOME}/outputs<< parameters.dataset >>
 
-      - run:
-          name: print version
-          command: |
-            docker run -ti --rm --read-only \
-              -v /tmp:/tmp \
-              -v /var/tmp:/var/tmp \
-              -v /tmp/workspace/data/ds114_test<< parameters.dataset >>:/bids_dataset \
-              -v ${HOME}/outputs<< parameters.dataset >>:/outputs \
-                bids/${CIRCLE_PROJECT_REPONAME,,} --version
-          no_output_timeout: 6h
-      - run:
-          name: participant_label 01
-          command: |
-            docker run -ti --rm --read-only \
-              -v /tmp:/tmp \
-              -v /var/tmp:/var/tmp \
-              -v /tmp/workspace/data/ds114_test<< parameters.dataset >>:/bids_dataset \
-              -v ${HOME}/outputs<< parameters.dataset >>:/outputs \              
-                bids/${CIRCLE_PROJECT_REPONAME,,} /bids_dataset /outputs participant --participant_label 01 --task_name linebisection
-          no_output_timeout: 6h
-      - run:
-          name: participant_label 02      
-          command: |
-            docker run -ti --rm --read-only \
-              -v /tmp:/tmp \
-              -v /var/tmp:/var/tmp \
-              -v /tmp/workspace/data/ds114_test<< parameters.dataset >>:/bids_dataset \
-              -v ${HOME}/outputs<< parameters.dataset >>:/outputs \              
-                bids/${CIRCLE_PROJECT_REPONAME,,} /bids_dataset /outputs participant --participant_label 02 --task_name linebisection
-          no_output_timeout: 6h
-      - run:
-          name: group level
-          command: |
-            docker run -ti --rm --read-only \
-              -v /tmp:/tmp \
-              -v /var/tmp:/var/tmp \
-              -v /tmp/workspace/data/ds114_test<< parameters.dataset >>:/bids_dataset \
-              -v ${HOME}/outputs<< parameters.dataset >>:/outputs \              
-                bids/${CIRCLE_PROJECT_REPONAME,,} /bids_dataset /outputs group --task_name linebisection
-          no_output_timeout: 6h
+    - run:
+        name: print version
+        command: |
+          docker run -ti --rm --read-only \
+            -v /tmp:/tmp \
+            -v /var/tmp:/var/tmp \
+            -v /tmp/workspace/data/ds114_test<< parameters.dataset >>:/bids_dataset \
+            -v ${HOME}/outputs<< parameters.dataset >>:/outputs \
+              bids/${CIRCLE_PROJECT_REPONAME,,} --version
+        no_output_timeout: 6h
+    - run:
+        name: participant_label 01
+        command: |
+          docker run -ti --rm --read-only \
+            -v /tmp:/tmp \
+            -v /var/tmp:/var/tmp \
+            -v /tmp/workspace/data/ds114_test<< parameters.dataset >>:/bids_dataset \
+            -v ${HOME}/outputs<< parameters.dataset >>:/outputs \
+              bids/${CIRCLE_PROJECT_REPONAME,,} /bids_dataset /outputs participant --participant_label 01 --task_name linebisection
+        no_output_timeout: 6h
+    - run:
+        name: participant_label 02
+        command: |
+          docker run -ti --rm --read-only \
+            -v /tmp:/tmp \
+            -v /var/tmp:/var/tmp \
+            -v /tmp/workspace/data/ds114_test<< parameters.dataset >>:/bids_dataset \
+            -v ${HOME}/outputs<< parameters.dataset >>:/outputs \
+              bids/${CIRCLE_PROJECT_REPONAME,,} /bids_dataset /outputs participant --participant_label 02 --task_name linebisection
+        no_output_timeout: 6h
+    - run:
+        name: group level
+        command: |
+          docker run -ti --rm --read-only \
+            -v /tmp:/tmp \
+            -v /var/tmp:/var/tmp \
+            -v /tmp/workspace/data/ds114_test<< parameters.dataset >>:/bids_dataset \
+            -v ${HOME}/outputs<< parameters.dataset >>:/outputs \
+              bids/${CIRCLE_PROJECT_REPONAME,,} /bids_dataset /outputs group --task_name linebisection
+        no_output_timeout: 6h
 
-      - store_artifacts:
-          path: "~/output<< parameters.dataset >>"
+    - store_artifacts:
+        path: ~/output<< parameters.dataset >>
 
 
   deploy:
