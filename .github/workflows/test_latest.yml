@@ -37,7 +37,7 @@ jobs:
       uses: actions/checkout@v3
 
     - name: pull docker image
-      run: docker pull bids/c-pac:latest
+      run: docker pull bids/oppni:latest
 
     - name: get data
       run: |
@@ -54,7 +54,7 @@ jobs:
           -v ${HOME}/outputs${{ matrix.dataset }}:/outputs \
           -v /tmp:/tmp \
           -v /var/tmp:/var/tmp \
-            bids/oppni \
+            bids/oppni:latest \
               /bids_dataset /outputs participant \
                 --participant_label 01 --task_name linebisection
 
@@ -65,7 +65,7 @@ jobs:
           -v ${HOME}/outputs${{ matrix.dataset }}:/outputs \
           -v /tmp:/tmp \
           -v /var/tmp:/var/tmp \
-            bids/oppni \
+            bids/oppni:latest \
               /bids_dataset /outputs participant \
                 --participant_label 02 --task_name linebisection
 
@@ -76,7 +76,7 @@ jobs:
           -v ${HOME}/outputs${{ matrix.dataset }}:/outputs \
           -v /tmp:/tmp \
           -v /var/tmp:/var/tmp \
-            bids/c-pac \
+            bids/oppni:latest\
               /bids_dataset /outputs group --task_name linebisection
 
     - name: check output
